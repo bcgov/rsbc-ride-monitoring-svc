@@ -4,7 +4,7 @@ import requests
 class dfmetrics:
     def __init__(self, logging):
         self.logging = logging
-        self.form_inventory_api_url = os.getenv('FORM_INVENTORY_API_URL', 'http://localhost:5000/api/v1/forms/statistics')
+        self.form_inventory_api_url = os.getenv('DF_FORM_INVENTORY_API_URL', 'http://localhost:5000/api/v1/forms/statistics')
 
     def genFormInventoryMetrics(self):
         self.logging.info("Generating metrics for form inventory")
