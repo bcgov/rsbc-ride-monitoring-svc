@@ -42,7 +42,7 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v3
         with:
-          context: ride-monitoring-svc
+          context: .
           file: ${{ env.DOCKER_FILE }}
           push: true
           build-args: |
