@@ -7,6 +7,7 @@ import os
 from prometheus_client import Gauge, generate_latest
 import logging
 from metricsfuncs import reconmetrics
+from dfmetricsfuncs import dfmetrics
 
 numeric_level = getattr(logging, os.getenv('LOG_LEVEL').upper(), 10)
 # Set up logging
@@ -29,6 +30,7 @@ err_table_collection=db[os.getenv('ERR_TABLE_COLLECTION')]
 
 
 metricsobj=reconmetrics(db,logging)
+dfmetricsobj = dfmetrics(logging)
 
 err_metric = Gauge("msgs_err_count", "Count of errored messages",['count_type'])
 err_metric.labels("err_staging").set_function(metricsobj.genStageErrMetric)
@@ -44,6 +46,21 @@ recon_exception_metric.labels("count_staging").set_function(metricsobj.genReconE
 # detailed_count_metric = Gauge("ride_msgs_detailed_counts", "Count of messages detailed by types",['source_type','event_type'])
 event_type_count_metric = Gauge("ride_msgs_by_eventtype_counts", "Count of messages by event type",['event_type'])
 source_type_count_metric = Gauge("ride_msgs_by_source_counts", "Count of messages by data source",['source_type'])
+
+
+# New metrics for form inventory
+form_types = ['12Hour', '24Hour', 'IRP', 'VI']
+
+available_forms_metric = Gauge("available_forms", "Number of available forms", ['form_type'])
+leased_forms_metric = Gauge("leased_forms", "Number of leased forms", ['form_type'])
+total_forms_metric = Gauge("total_forms", "Total number of forms", ['form_type'])
+total_used_forms_metric = Gauge("total_used_forms", "Total number of used forms", ['form_type'])
+
+for form_type in form_types:
+    available_forms_metric.labels(form_type).set_function(lambda ft=form_type: dfmetricsobj.genAvailableFormsMetric(ft))
+    leased_forms_metric.labels(form_type).set_function(lambda ft=form_type: dfmetricsobj.genLeasedFormsMetric(ft))
+    total_forms_metric.labels(form_type).set_function(lambda ft=form_type: dfmetricsobj.genTotalFormsMetric(ft))
+    total_used_forms_metric.labels(form_type).set_function(lambda ft=form_type: dfmetricsobj.genTotalUsedFormsMetric(ft))
 
 
 @app.route('/ping')
@@ -71,6 +88,16 @@ def genDetailedmetrics():
         logging.error("error in generating detailed metrics")
         logging.info(e)
     return make_response(jsonify(status=respstatus),statuscode)
+
+@app.route('/formsinventory')
+def formsinventory():
+    try:
+        inventory = dfmetricsobj.genFormInventoryMetrics()
+        return jsonify(inventory), 200
+    except Exception as e:
+        logging.error("Error in retrieving form inventory")
+        logging.info(e)
+        return jsonify({"error": "Failed to retrieve form inventory"}), 500
 
 
 
