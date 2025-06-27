@@ -3,3 +3,4 @@ apienv
 .env
 __pycache__
 .run
+.DS_Store
