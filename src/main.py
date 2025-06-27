@@ -38,7 +38,8 @@ err_metric.labels("err_main").set_function(metricsobj.genMainErrMetric)
 
 total_count_metric = Gauge("msgs_total_count", "Count of total messages",['count_type'])
 total_count_metric.labels("total_staging").set_function(metricsobj.genStageMetric)
-total_count_metric.labels("total_main").set_function(metricsobj.genMainMetric)
+# Removed the main table count metric as it is taking too long to generate because of the large number of records
+# total_count_metric.labels("total_main").set_function(metricsobj.genMainMetric)
 
 recon_exception_metric = Gauge("msgs_recon_exceptions", "Count of messages exceeding recon threshold",['count_type'])
 recon_exception_metric.labels("count_staging").set_function(metricsobj.genReconExcpCount)
