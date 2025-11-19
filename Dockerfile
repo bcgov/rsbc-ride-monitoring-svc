@@ -10,6 +10,7 @@ ENV ENVIRONMENT prod
 ENV TESTING 0
 
 
+
 WORKDIR /app
 COPY src/ .
 # RUN /opt/app-root/bin/python3.9 -m pip install --upgrade pip
