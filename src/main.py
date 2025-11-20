@@ -1,10 +1,10 @@
 
-from flask import Flask, jsonify,make_response
+from flask import Flask, jsonify,make_response, Response
 from pymongo import MongoClient
 import os
 
 
-from prometheus_client import Gauge, generate_latest
+from prometheus_client import Gauge, generate_latest, CONTENT_TYPE_LATEST
 import logging
 from metricsfuncs import reconmetrics
 from dfmetricsfuncs import dfmetrics
@@ -72,8 +72,9 @@ def pingroute():
 
 @app.route('/metrics')
 def metrics():
-    return generate_latest()
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
+    
 @app.route('/gendetailedmetrics')
 def genDetailedmetrics():
     metricsgenerated=0
